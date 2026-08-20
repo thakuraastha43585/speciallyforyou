@@ -219,6 +219,21 @@
   .coupon-status.success{color:var(--deep); font-weight:700;}
   .coupon-status.error{color:#C62828;}
 
+  .confirm-box{
+    display:none; margin-top:24px; padding-top:22px; border-top:1px dashed var(--sec);
+  }
+  .confirm-box.show{display:block; animation:fadeUp .5s ease;}
+  .confirm-label{
+    font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--muted); margin-bottom:8px;
+  }
+  .confirm-code{
+    font-family:var(--font-mono); font-size:1.3rem; font-weight:700; letter-spacing:.08em;
+    color:var(--deep); background:var(--bg); border:2px solid var(--sec); border-radius:12px;
+    padding:12px 14px; word-break:break-all;
+  }
+  .confirm-copy{margin-top:12px; padding:10px 20px; font-size:.82rem;}
+
   /* confetti */
   .confetti-piece{
     position:fixed; top:-20px; width:8px; height:14px; z-index:999; pointer-events:none;
@@ -392,6 +407,12 @@
 
     <button class="cta" onclick="openRazorpay()" id="sealBtn">Seal it 💫 (₹79)</button>
     <div class="price">demo checkout — Razorpay test mode</div>
+
+    <div class="confirm-box" id="confirmBox">
+      <div class="confirm-label">confirmation code</div>
+      <div class="confirm-code" id="confirmCode">— — — — — —</div>
+      <button class="cta ghost confirm-copy" type="button" onclick="copyConfirmCode()" id="copyCodeBtn">Copy code</button>
+    </div>
   </div>
 </section>
 
@@ -698,12 +719,42 @@ function applyCoupon(){
 
 updatePriceUI();
 
+/* ---------------- confirmation code ---------------- */
+function generateConfirmationCode(paymentId){
+  // Deterministic-ish, human-shareable code: SORRY-XXXX-XXXX
+  // Built from timestamp + a random segment, base36 for compactness.
+  const ts = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const tail = (paymentId || '').replace(/[^A-Za-z0-9]/g,'').slice(-4).toUpperCase();
+  const seg2 = (tail || ts.slice(-4)).padEnd(4, 'X');
+  return `SORRY-${ts.slice(-4)}-${seg2}${rand ? '-' + rand : ''}`;
+}
+
+function showConfirmationCode(paymentId){
+  const code = generateConfirmationCode(paymentId);
+  document.getElementById('confirmCode').textContent = code;
+  document.getElementById('confirmBox').classList.add('show');
+  return code;
+}
+
+function copyConfirmCode(){
+  const code = document.getElementById('confirmCode').textContent;
+  const btn = document.getElementById('copyCodeBtn');
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent = 'Copied ✓';
+    setTimeout(()=>{ btn.textContent = 'Copy code'; }, 1800);
+  }).catch(()=>{
+    btn.textContent = "Couldn't copy — select manually";
+    setTimeout(()=>{ btn.textContent = 'Copy code'; }, 2200);
+  });
+}
+
 /* ---------------- razorpay ---------------- */
 function openRazorpay(){
   if(currentPrice <= 0){
     confettiBurst(120);
     playChime();
-    alert("Sealed 💫 — free, with your coupon (" + appliedCoupon + "). No payment needed.");
+    showConfirmationCode('FREE-' + (appliedCoupon || 'COUPON'));
     return;
   }
 
@@ -717,7 +768,7 @@ function openRazorpay(){
     handler: function(response){
       confettiBurst(120);
       playChime();
-      alert("Sealed 💫 (test payment id: " + response.razorpay_payment_id + ")");
+      showConfirmationCode(response.razorpay_payment_id);
     },
     theme: { color: getComputedStyle(document.body).getPropertyValue('--deep').trim() || "#C2185B" }
   };
