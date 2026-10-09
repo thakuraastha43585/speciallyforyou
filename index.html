@@ -1,898 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>I'm Sorry — Five Pages, One Us</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I'm Sorry – make a little something</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Caveat:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#FFF9FB; --surface:#FFFFFF; --pri:#FF7FA6; --sec:#FFD3E0;
-    --deep:#C2185B; --ink:#3A2A30; --muted:#8A6E76; --heart:"💗";
-    --font-display:'Fraunces', serif; --font-body:'Nunito', sans-serif; --font-mono:'Space Mono', monospace;
-    --shadow: 0 20px 50px -20px rgba(194,24,91,0.25);
-  }
-  [data-theme="boy"]{
-    --bg:#F2FBFC; --surface:#FFFFFF; --pri:#2FB6C4; --sec:#B9E8ED;
-    --deep:#0F5C73; --ink:#1B2A2E; --muted:#5C7C82; --heart:"💙";
-    --shadow: 0 20px 50px -20px rgba(15,92,115,0.25);
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg); color:var(--ink); font-family:var(--font-body);
-    min-height:100vh; overflow-x:hidden; transition:background .5s ease;
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.001s !important; transition-duration:.001s !important;}
-  }
+/* variable names kept from the original; values are now pink + purple */
+:root{--bg:#fdeff8;--ink:#3d2250;--teal:#b56ad8;--teal-d:#7d3fb0;--mint:#f7d6ea;--peach:#ff6fae;--gold:#ff9ccb;--line:#f5d9ea;--mut:#8a6a9a;--grad:linear-gradient(135deg,#ff8fc4,#b56ad8)}
+*{box-sizing:border-box;margin:0}
+::selection{background:#f7c6e3;color:var(--ink)}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background-color:var(--bg);background-image:radial-gradient(circle at 12% 8%,#ffd3ea 0,transparent 42%),radial-gradient(circle at 88% 18%,#e4d1ff 0,transparent 42%),radial-gradient(circle at 20% 88%,#e9d5ff 0,transparent 45%),radial-gradient(circle at 85% 95%,#ffc8e2 0,transparent 45%);background-attachment:fixed;min-height:100vh;line-height:1.55}
+h1,h2{font-family:Fraunces,serif;font-weight:700;line-height:1.1}
+.hand{font-family:Caveat,cursive;color:var(--teal-d)}
+.hidden{display:none!important}
+button{font:inherit;cursor:pointer;border:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn{background:var(--grad);color:#fff;padding:14px 26px;border-radius:999px;font-weight:600;box-shadow:0 8px 22px rgba(181,106,216,.35);transition:transform .25s ease,box-shadow .25s ease,opacity .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(181,106,216,.42)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.85);color:var(--teal-d);box-shadow:0 4px 14px rgba(125,63,176,.14)}
+.btn:disabled{opacity:.6;cursor:wait}
 
-  /* ---------- top nav ---------- */
-  .topbar{
-    position:fixed; top:0; left:0; right:0; z-index:100;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 28px; backdrop-filter:blur(10px);
-    background:color-mix(in srgb, var(--bg) 80%, transparent);
-    border-bottom:1px solid color-mix(in srgb, var(--pri) 25%, transparent);
-  }
-  .brand{font-family:var(--font-display); font-style:italic; font-weight:600; font-size:1.1rem; color:var(--deep);}
-  .dots{display:flex; gap:10px; align-items:center;}
-  .dot{
-    width:10px; height:10px; border-radius:50%; background:var(--sec);
-    border:none; cursor:pointer; transition:all .3s ease; position:relative;
-  }
-  .dot.active{background:var(--pri); width:26px; border-radius:6px;}
-  .dot.done{background:var(--deep);}
-  .theme-toggle{
-    display:flex; background:var(--sec); border-radius:999px; padding:4px; gap:2px;
-  }
-  .theme-toggle button{
-    border:none; background:transparent; padding:6px 14px; border-radius:999px;
-    font-family:var(--font-mono); font-size:.7rem; letter-spacing:.05em; cursor:pointer;
-    color:var(--muted); transition:all .25s ease;
-  }
-  .theme-toggle button.active{background:var(--surface); color:var(--deep); box-shadow:0 4px 10px rgba(0,0,0,.08); font-weight:700;}
+/* floating, popping hearts */
+#hearts{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.h{position:absolute;line-height:1;opacity:0;animation:hp var(--d,4s) ease-in-out forwards;text-shadow:0 2px 10px rgba(255,255,255,.7)}
+.h::after{content:"";position:absolute;inset:-30%;border:2px solid currentColor;border-radius:50%;opacity:0;animation:hr var(--d,4s) ease-out forwards}
+@keyframes hp{0%{transform:translate(0,0) scale(0);opacity:0}14%{transform:translate(calc(var(--dx)*.2),-12px) scale(1);opacity:.75}86%{transform:translate(var(--dx),-95px) scale(1.05);opacity:.75}93%{transform:translate(var(--dx),-100px) scale(1.45);opacity:.9}100%{transform:translate(var(--dx),-104px) scale(2.3);opacity:0}}
+@keyframes hr{0%,90%{opacity:0;transform:scale(.3)}93%{opacity:.85}100%{opacity:0;transform:scale(2.2)}}
 
-  /* ---------- pages ---------- */
-  .page{
-    display:none; min-height:100vh; padding:110px 24px 80px;
-    align-items:center; justify-content:center; flex-direction:column;
-  }
-  .page.active{display:flex; animation:fadeUp .6s ease;}
-  @keyframes fadeUp{ from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
+/* pages + smooth transitions */
+.page{position:relative;z-index:1;min-height:100vh;padding-bottom:100px;transition:opacity .35s ease,transform .35s ease}
+.page.leaving{opacity:0;transform:translateY(-12px)}
+.page.entering{opacity:0;transform:translateY(16px)}
+.wrap{max-width:640px;margin:0 auto;padding:48px 20px 80px}
+/* form */
+.head{text-align:center;margin-bottom:28px}
+.head h1{font-size:clamp(32px,7vw,46px);margin:8px 0;background:linear-gradient(120deg,#d6408f,#8a4bd0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head p{font-size:26px}
+.card{background:rgba(255,255,255,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.9);border-radius:28px;padding:26px;box-shadow:0 18px 50px rgba(160,80,190,.16);transform:rotate(-.4deg)}
+label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+input[type=text],textarea{width:100%;padding:12px 14px;border:2px solid var(--mint);border-radius:14px;font:inherit;background:#fffafd;transition:border-color .25s,box-shadow .25s}
+input:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(181,106,216,.15)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pic{aspect-ratio:1;border:2px dashed var(--teal);border-radius:18px;display:grid;place-items:center;text-align:center;font-size:13px;color:var(--mut);background:#fff5fb center/cover;position:relative;overflow:hidden;transition:transform .25s}
+.pic:hover{transform:scale(1.03)}
+.pic input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pic.has span{display:none}
+.err{color:#c2185b;font-size:14px;margin-top:12px;min-height:20px}
+/* envelope page */
+#pg1{display:grid;place-items:center;text-align:center;cursor:pointer}
+.envelope{position:relative;width:min(86vw,440px);height:240px;margin:60px auto 0}
+.letter{position:absolute;left:5%;right:5%;top:-70px;height:210px;background:#fff;border-radius:14px;padding:26px 14px;box-shadow:0 10px 30px rgba(160,80,190,.18);transform:rotate(-1deg);z-index:1;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+#pg1.open .letter{transform:translateY(-46px) rotate(0deg)}
+.letter h2{font-family:Caveat;font-size:36px;font-weight:600;color:var(--teal-d)}
+.letter p{font-family:Caveat;font-size:24px;color:var(--teal-d);line-height:1.3}
+.front{position:absolute;inset:60px 0 0;background:linear-gradient(160deg,#fbd3ea,#e3c8f7);border:3px solid #b48acb;border-radius:8px 8px 22px 22px;z-index:2;clip-path:polygon(0 0,50% 48%,100% 0,100% 100%,0 100%)}
+.front::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.45),transparent)}
+.stamp{position:absolute;left:6%;bottom:44px;z-index:3;border:2px dashed var(--teal);color:var(--teal-d);padding:6px 12px;font-weight:600;font-size:13px;letter-spacing:.06em;transform:rotate(-6deg);border-radius:8px;background:rgba(255,235,247,.85)}
+.heart{position:absolute;left:50%;top:132px;width:52px;margin-left:-26px;z-index:3;font-size:52px;line-height:1;color:var(--peach);text-shadow:0 2px 0 #fff;animation:beat 1.8s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.cat{position:absolute;right:-26px;bottom:-14px;width:76px;z-index:4}
+.tap{margin-top:70px;letter-spacing:.3em;font-size:13px;color:var(--teal-d);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+/* viewer pages */
+.sec{max-width:900px;margin:0 auto;padding:60px 20px;text-align:center}
+.eyebrow{font-size:14px;color:var(--peach);font-weight:600;letter-spacing:.08em}
+.title{font-size:clamp(34px,7vw,64px);margin:10px 0 16px;background:linear-gradient(120deg,#d6408f,#8a4bd0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:clamp(30px,5vw,44px)}
+.ribbon{display:inline-block;background:var(--grad);color:#fff;padding:12px 30px 12px 40px;font-family:Caveat;font-size:26px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,16px 50%)}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center;margin-top:36px}
+.polaroid{background:#fff;padding:14px;box-shadow:0 14px 34px rgba(160,80,190,.2);transform:rotate(-2.5deg);position:relative}
+.polaroid img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
+.polaroid::before,.polaroid::after{content:"";position:absolute;width:80px;height:26px;background:rgba(255,143,196,.45)}
+.polaroid::before{top:-12px;left:-24px;transform:rotate(-35deg)}
+.polaroid::after{bottom:-10px;right:-24px;transform:rotate(-35deg)}
+.msg{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.9);border-radius:26px;padding:28px;font-size:19px;color:#6b4a80;text-align:left;box-shadow:0 18px 44px rgba(160,80,190,.14);white-space:pre-wrap}
+.minis{display:flex;gap:22px;justify-content:center;margin-top:48px}
+.minis img{width:200px;height:200px;object-fit:cover;background:#fff;padding:8px;box-shadow:0 8px 20px rgba(160,80,190,.18)}
+.minis img:nth-child(2){transform:translateY(10px) rotate(2deg)}
+.wall{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.flip{aspect-ratio:3/4;perspective:900px;background:none;padding:0;position:relative}
+.flip>div{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.flip.on>div{transform:rotateY(180deg)}
+.flip figure,.flip .back{position:absolute;inset:0;backface-visibility:hidden;background:#fff;box-shadow:0 12px 28px rgba(160,80,190,.18);border-radius:8px;overflow:hidden}
+.flip img{width:100%;height:100%;object-fit:cover}
+.flip .back{transform:rotateY(180deg);display:grid;place-items:center;padding:16px;font-family:Caveat;font-size:25px;color:var(--teal-d);background:repeating-linear-gradient(#fff 0 34px,#f3dcee 34px 35px)}
+.pin{position:absolute;top:-8px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--grad);z-index:2;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.note{background:#fff repeating-linear-gradient(#fff 0 39px,#f3dcee 39px 40px);border-radius:12px;padding:34px 28px 30px 40px;box-shadow:0 18px 44px rgba(160,80,190,.16);text-align:left;font-family:Caveat;font-size:27px;line-height:40px;white-space:pre-wrap;margin-top:24px}
+.note .sig{font-size:36px;color:var(--teal-d);text-decoration:underline wavy var(--peach);text-underline-offset:8px}
+.genbox{margin-top:34px}
+.genbox p{color:var(--mut);font-size:14px;margin-top:10px}
+/* nav */
+#nav{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 8px 28px rgba(160,80,190,.22);z-index:10}
+#nav .btn{padding:10px 20px}
+#dots{display:flex;gap:7px}
+#dots i{width:8px;height:8px;border-radius:50%;background:var(--mint);transition:transform .3s,background .3s}
+#dots i.on{background:var(--grad);transform:scale(1.4)}
+.nv{visibility:hidden}.nv.show{visibility:visible}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(61,34,80,.5);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:30;padding:20px}
+.mbox{background:#fff;border-radius:26px;padding:28px;width:min(94vw,420px);text-align:center;position:relative;box-shadow:0 24px 60px rgba(61,34,80,.3)}
+.mbox h2{font-size:28px;margin-bottom:8px}
+.mbox p{color:var(--mut);font-size:14px}
+.x{position:absolute;top:10px;right:14px;background:none;font-size:26px;color:var(--mut)}
+.codeRow{display:flex;gap:8px;margin:18px 0 6px}
+.codeRow input{flex:1}
+.big{font-family:Fraunces,serif;font-size:34px;margin:14px 0}
+#qr{display:flex;justify-content:center;margin:16px 0}
+.link{margin:10px 0 16px;padding:10px;background:var(--bg);border-radius:12px;word-break:break-all;font-size:13px}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.wall{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}.minis{gap:10px}.minis img{width:29vw;height:29vw;padding:5px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#hearts{display:none}}
 
-  .eyebrow{
-    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.15em;
-    font-size:.75rem; color:var(--deep); margin-bottom:18px;
-  }
-  h1{
-    font-family:var(--font-display); font-weight:600; font-size:clamp(2.5rem,7vw,4.5rem);
-    text-align:center; line-height:1.05; max-width:800px; color:var(--ink);
-  }
-  h1 em{color:var(--pri); font-style:italic;}
-  .sub{
-    font-size:1.05rem; color:var(--muted); max-width:520px; text-align:center;
-    margin-top:18px; line-height:1.6;
-  }
-  .cta{
-    margin-top:36px; background:var(--deep); color:#fff; border:none;
-    padding:16px 34px; border-radius:999px; font-family:var(--font-body);
-    font-weight:700; font-size:1rem; cursor:pointer; box-shadow:var(--shadow);
-    transition:transform .25s ease, box-shadow .25s ease;
-  }
-  .cta:hover{transform:translateY(-3px) scale(1.03);}
-  .cta.ghost{background:transparent; border:2px solid var(--pri); color:var(--deep); box-shadow:none;}
-
-  /* ---------- hero heart motif ---------- */
-  .floating-hearts{position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1;}
-  .fh{position:absolute; font-size:1.4rem; opacity:.35; animation:drift linear infinite;}
-  @keyframes drift{ from{transform:translateY(110vh) rotate(0deg);} to{transform:translateY(-10vh) rotate(30deg);} }
-
-  /* ---------- site-wide cartoon stickers ---------- */
-  .sticker-layer{
-    position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:1;
-  }
-  .sticker{
-    position:absolute; opacity:.45; filter:drop-shadow(0 3px 6px rgba(0,0,0,.08));
-    animation:stickerFloat ease-in-out infinite;
-  }
-  @keyframes stickerFloat{
-    0%{transform:translateY(0) rotate(var(--rot,0deg));}
-    50%{transform:translateY(-22px) rotate(calc(var(--rot,0deg) * -1));}
-    100%{transform:translateY(0) rotate(var(--rot,0deg));}
-  }
-
-  /* ---------- cat illustrations ---------- */
-  .cat-heart{width:150px; height:150px; margin-top:22px;}
-  .cat-flowers{width:110px; height:118px; position:absolute; top:-38px; right:-18px;}
-
-  /* ---------- personalize form ---------- */
-  .form-card{
-    position:relative; background:var(--surface); border-radius:20px; padding:40px 36px;
-    max-width:460px; width:100%; box-shadow:var(--shadow); border-top:6px solid var(--pri);
-    text-align:left;
-  }
-  .form-card label{
-    display:block; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em;
-    text-transform:uppercase; color:var(--muted); margin:16px 0 6px;
-  }
-  .form-card label:first-of-type{margin-top:0;}
-  .form-card input, .form-card textarea{
-    width:100%; border:2px solid var(--sec); background:var(--bg); border-radius:12px;
-    padding:12px 14px; font-family:var(--font-body); font-size:.95rem; color:var(--ink);
-    outline:none; transition:border-color .2s ease; resize:vertical;
-  }
-  .form-card input:focus, .form-card textarea:focus{border-color:var(--pri);}
-  .form-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:22px;}
-  .form-actions .cta{margin-top:0; padding:13px 22px; font-size:.9rem;}
-  .ai-status{
-    margin-top:14px; font-family:var(--font-mono); font-size:.72rem; color:var(--muted); min-height:16px;
-  }
-
-  /* ---------- letter page ---------- */
-  .letter-card{
-    background:var(--surface); border-radius:20px; padding:48px 44px;
-    max-width:640px; box-shadow:var(--shadow); position:relative;
-    border-top:6px solid var(--pri);
-  }
-  .letter-card p{margin-bottom:16px; line-height:1.8; color:var(--ink); font-size:1.02rem;}
-  .signoff{font-family:var(--font-display); font-style:italic; font-size:1.3rem; color:var(--deep); margin-top:24px;}
-  .edit-hint{font-family:var(--font-mono); font-size:.7rem; color:var(--muted); text-align:center; margin-top:16px;}
-
-  /* ---------- forgiveness meter ---------- */
-  .meter-wrap{display:flex; flex-direction:column; align-items:center; gap:28px;}
-  .gauge{position:relative; width:220px; height:220px; cursor:pointer; user-select:none;}
-  .gauge svg{width:100%; height:100%; transform:rotate(-90deg);}
-  .gauge-bg{fill:none; stroke:var(--sec); stroke-width:14;}
-  .gauge-fill{fill:none; stroke:var(--pri); stroke-width:14; stroke-linecap:round;
-    stroke-dasharray:628; stroke-dashoffset:628; transition:stroke-dashoffset .6s ease, stroke .4s ease;}
-  .gauge-center{
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    flex-direction:column; font-family:var(--font-display); font-size:2.6rem; color:var(--deep);
-  }
-  .gauge-pct{font-family:var(--font-mono); font-size:.85rem; color:var(--muted); margin-top:4px;}
-  .gauge.shake{animation:shake .4s ease;}
-  @keyframes shake{
-    10%,90%{transform:translateX(-3px);} 20%,80%{transform:translateX(5px);}
-    30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);}
-  }
-  .status-msg{
-    font-family:var(--font-mono); font-size:.95rem; padding:12px 22px; border-radius:999px;
-    background:var(--sec); color:var(--deep); min-height:20px; text-align:center; transition:all .3s ease;
-  }
-  .status-msg.angry{background:#FFD9D9; color:#C62828;}
-  .status-msg.happy{background:var(--pri); color:#fff;}
-
-  /* ---------- balloons ---------- */
-  .balloon-field{
-    display:flex; gap:26px; flex-wrap:wrap; justify-content:center; max-width:900px; margin-top:20px;
-  }
-  .balloon-slot{width:130px; height:220px; display:flex; align-items:flex-end; justify-content:center; position:relative;}
-  .balloon{
-    width:100px; height:130px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-    cursor:pointer; position:relative; box-shadow:inset -10px -10px 20px rgba(0,0,0,.08);
-    animation:bob 3.4s ease-in-out infinite;
-    transition:transform .15s ease;
-  }
-  .balloon::after{
-    content:''; position:absolute; bottom:-40px; left:50%; width:2px; height:40px;
-    background:var(--muted); opacity:.5;
-  }
-  .balloon:hover{transform:scale(1.05);}
-  .balloon.popped{animation:none; visibility:hidden;}
-  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
-  .balloon:nth-child(1){animation-delay:0s;}
-  .balloon:nth-child(2){animation-delay:.4s;}
-  .note-card{
-    display:none; background:var(--surface); border-radius:16px; padding:18px 16px;
-    max-width:120px; box-shadow:var(--shadow); font-size:.78rem; text-align:center;
-    font-family:var(--font-mono); color:var(--ink); line-height:1.4;
-  }
-  .note-card.show{display:block; animation:fadeUp .5s ease;}
-  .balloon-progress{
-    font-family:var(--font-mono); font-size:.8rem; color:var(--muted); margin-top:28px;
-  }
-
-  /* ---------- seal / final page ---------- */
-  .hug-illustration{width:220px; height:220px; margin-bottom:6px;}
-  .pay-box{
-    margin-top:38px; background:var(--surface); border-radius:20px; padding:32px 36px;
-    box-shadow:var(--shadow); max-width:420px; text-align:center;
-  }
-  .pay-box h3{font-family:var(--font-display); font-size:1.4rem; margin-bottom:8px;}
-  .pay-box p{color:var(--muted); font-size:.9rem; margin-bottom:20px; line-height:1.5;}
-  .price{font-family:var(--font-mono); font-size:.75rem; color:var(--muted); margin-top:14px;}
-
-  .price-row{
-    display:flex; align-items:baseline; justify-content:center; gap:10px; margin-bottom:18px;
-  }
-  .price-original{
-    font-family:var(--font-mono); font-size:1rem; color:var(--muted);
-    text-decoration:line-through; opacity:.65;
-  }
-  .price-original.hide{display:none;}
-  .price-final{
-    font-family:var(--font-display); font-size:2rem; font-weight:600; color:var(--deep);
-  }
-  .coupon-row{
-    display:flex; gap:8px; margin-top:4px;
-  }
-  .coupon-row input{
-    flex:1; border:2px solid var(--sec); background:var(--bg); border-radius:12px;
-    padding:11px 14px; font-family:var(--font-mono); font-size:.85rem; color:var(--ink);
-    outline:none; transition:border-color .2s ease; text-transform:uppercase;
-  }
-  .coupon-row input:focus{border-color:var(--pri);}
-  .coupon-btn{padding:11px 18px; font-size:.82rem; white-space:nowrap;}
-  .coupon-status{
-    font-family:var(--font-mono); font-size:.75rem; min-height:16px; margin:10px 0 18px;
-    color:var(--muted);
-  }
-  .coupon-status.success{color:var(--deep); font-weight:700;}
-  .coupon-status.error{color:#C62828;}
-
-  .confirm-box{
-    display:none; margin-top:24px; padding-top:22px; border-top:1px dashed var(--sec);
-  }
-  .confirm-box.show{display:block; animation:fadeUp .5s ease;}
-  .confirm-label{
-    font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em;
-    color:var(--muted); margin-bottom:8px;
-  }
-  .confirm-code{
-    font-family:var(--font-mono); font-size:1.3rem; font-weight:700; letter-spacing:.08em;
-    color:var(--deep); background:var(--bg); border:2px solid var(--sec); border-radius:12px;
-    padding:12px 14px; word-break:break-all;
-  }
-  .confirm-copy{margin-top:12px; padding:10px 20px; font-size:.82rem;}
-
-  .share-link-input{
-    width:100%; border:2px solid var(--sec); background:var(--bg); border-radius:12px;
-    padding:11px 14px; font-family:var(--font-mono); font-size:.78rem; color:var(--deep);
-    outline:none; cursor:pointer;
-  }
-  .share-hint{
-    font-family:var(--font-mono); font-size:.68rem; color:var(--muted); margin-top:10px; line-height:1.5;
-  }
-
-  .gratitude-note{
-    font-size:.92rem !important; max-width:380px; margin-left:auto; margin-right:auto;
-    line-height:1.5; font-weight:500;
-  }
-
-  /* confetti */
-  .confetti-piece{
-    position:fixed; top:-20px; width:8px; height:14px; z-index:999; pointer-events:none;
-    animation:fall linear forwards;
-  }
-  @keyframes fall{ to{ transform:translateY(110vh) rotate(360deg); opacity:.2; } }
-
-  footer{
-    text-align:center; padding:24px; font-family:var(--font-mono); font-size:.7rem; color:var(--muted);
-  }
+/* player */
+.player{display:flex;gap:18px;align-items:center;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.9);border-radius:28px;padding:16px 22px 16px 16px;box-shadow:0 18px 44px rgba(160,80,190,.16);max-width:560px;margin:34px auto 0;text-align:left}
+.player img{width:96px;height:96px;object-fit:cover;border-radius:18px;flex:none}
+.pm{flex:1;min-width:0}
+.now{font-size:12px;letter-spacing:.2em;color:var(--peach);font-weight:600}
+.pm h3{font-family:Fraunces,serif;font-size:24px;margin:2px 0}
+.pm small{color:var(--mut);font-size:15px}
+.ctl{display:flex;align-items:center;gap:12px;margin-top:10px}
+.play{width:46px;height:46px;border-radius:50%;background:var(--grad);color:#fff;font-size:15px;flex:none;box-shadow:0 6px 16px rgba(181,106,216,.35);transition:transform .2s}
+.play:active{transform:scale(.92)}
+.bar{flex:1;height:8px;border-radius:99px;background:var(--mint);cursor:pointer;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--grad)}
+.tm{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hint{font-size:24px;margin-top:16px}
+.albumBtn{margin-top:22px}
+/* certificate */
+.cert{position:relative;background:#fffafd;border-radius:10px;padding:12px;box-shadow:0 20px 54px rgba(160,80,190,.2);transform:rotate(-.6deg);margin-top:26px}
+.cert-in{border:3px double var(--gold);padding:30px 20px 26px;position:relative}
+.cert .k{font-size:12px;letter-spacing:.3em;color:var(--peach);font-weight:600}
+.cert h2{font-size:clamp(26px,6vw,38px);margin:6px 0}
+.cert .who{font-family:Caveat;font-size:clamp(34px,9vw,50px);color:var(--teal-d);border-bottom:2px dashed var(--teal);display:inline-block;padding:0 14px;margin:4px 0;max-width:100%;word-break:break-word}
+.cph{width:130px;height:130px;margin:18px auto 6px;border-radius:50%;border:5px solid #fff;box-shadow:0 8px 20px rgba(160,80,190,.22),0 0 0 3px var(--gold);object-fit:cover;display:block}
+.terms{list-style:none;padding:0;text-align:left;max-width:520px;margin:14px auto 0;font-size:16px}
+.terms li{padding:9px 0 9px 32px;position:relative;border-bottom:1px dotted var(--line)}
+.terms li::before{content:"✿";position:absolute;left:6px;color:var(--teal)}
+.sigs{display:flex;gap:18px;margin-top:24px}
+.sigs div{flex:1;min-width:0}
+.sigs b{display:block;font-family:Caveat;font-size:30px;font-weight:600;color:var(--teal-d);border-bottom:2px solid var(--ink);line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.sigs small{font-size:12px;color:var(--mut)}
+.seal{position:absolute;right:10px;top:10px;width:62px;height:62px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px;letter-spacing:.05em;transform:rotate(12deg);box-shadow:0 0 0 3px #fff,0 0 0 5px var(--gold);text-align:center;line-height:1.1}
+/* letter with pinned photos */
+.letter2{position:relative;margin-top:44px}
+.note{--lh:40px;position:relative;margin-top:0;padding:185px 28px 195px 40px;line-height:var(--lh);background:#fff repeating-linear-gradient(#fff 0 calc(var(--lh) - 1px),#f3dcee calc(var(--lh) - 1px) var(--lh))}
+.pp{position:absolute;width:min(36vw,170px);background:#fff;padding:6px 6px 20px;box-shadow:0 8px 20px rgba(125,63,176,.26);z-index:2}
+.pp img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.pp::before{content:"";position:absolute;top:-7px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--grad);box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.pa{top:-24px;left:-8px;transform:rotate(-7deg)}
+.pb{top:-16px;right:-8px;transform:rotate(6deg)}
+.pc{bottom:-22px;right:16px;transform:rotate(-4deg)}
+.cat2{position:absolute;left:14px;bottom:-18px;width:72px;z-index:3;transform:rotate(-6deg)}
+a.btn{display:inline-block;text-decoration:none}
+@media(max-width:700px){.cat2{width:60px}.player{padding:12px;gap:12px}.player img{width:72px;height:72px}.pm h3{font-size:20px}.pm small{font-size:14px}.play{width:40px;height:40px}.tm{font-size:12px}
+.note{--lh:32px;font-size:22px;padding:152px 20px 150px 24px}.note .sig{font-size:30px}.letter2{margin-left:6px;margin-right:6px}.cert-in{padding:26px 14px 22px}.seal{width:52px;height:52px;font-size:9px}}
 </style>
 </head>
-<body data-theme="girl">
+<body>
 
-<div class="sticker-layer" id="stickerLayer"></div>
+<div id="hearts" aria-hidden="true"></div>
 
-<div class="floating-hearts" id="floatingHearts"></div>
+<main id="pg0" class="page wrap">
+  <div class="head">
+    <p class="hand">i'm sorry, truly</p>
+    <h1>Say sorry in a little corner of the internet</h1>
+  </div>
+  <div class="card">
+    <div class="row">
+      <div><label for="sender">Your name</label><input type="text" id="sender" maxlength="30" placeholder="Priya"></div>
+      <div><label for="receiver">His name</label><input type="text" id="receiver" maxlength="30" placeholder="Rahul"></div>
+    </div>
+    <label>Three photos of you two</label>
+    <div class="pics">
+      <div class="pic"><span>+ photo 1</span><input type="file" accept="image/*"></div>
+      <div class="pic"><span>+ photo 2</span><input type="file" accept="image/*"></div>
+      <div class="pic"><span>+ photo 3</span><input type="file" accept="image/*"></div>
+    </div>
+    <label for="message">Your message <span style="font-weight:400;color:var(--mut)">(optional)</span></label>
+    <textarea id="message" rows="4" maxlength="400" placeholder="I've been thinking about what happened, and I just want to say..."></textarea>
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn" id="previewBtn" style="width:100%;margin-top:10px">Preview</button>
+  </div>
+</main>
 
-<div class="topbar">
-  <div class="brand">i'm sorry.</div>
-  <div class="dots" id="dots"></div>
-  <div class="theme-toggle">
-    <button id="btnGirl" class="active" onclick="setTheme('girl')">for her</button>
-    <button id="btnBoy" onclick="setTheme('boy')">for him</button>
+<section id="pg1" class="page hidden">
+  <div>
+    <div class="envelope">
+      <div class="letter"><h2>Hey You!</h2><p>I made a little something<br>just for you...</p><p style="margin-top:8px">i'm really sorry ✿</p></div>
+      <div class="front"></div>
+      <div class="stamp">I'M SORRY</div>
+      <div class="heart">♥</div>
+      <img class="cat" id="catImg" alt="">
+    </div>
+    <p class="tap">TAP ANYWHERE TO BEGIN</p>
+  </div>
+</section>
+
+<section id="pg2" class="page hidden"><div class="sec">
+  <p class="eyebrow">I'M SORRY</p>
+  <h1 class="title" id="vTitle"></h1>
+  <span class="ribbon" id="vRibbon"></span>
+  <div class="hero">
+    <div class="polaroid"><img src="p1.jpeg" alt="Us"></div>
+    <div class="msg" id="vMsg"></div>
+  </div>
+  <div class="minis" id="minis"></div>
+  <div class="player">
+    <img id="pArt" alt="">
+    <div class="pm">
+      <div class="now">NOW PLAYING</div>
+      <h3>Our Song</h3><small>the one that's ours</small>
+      <div class="ctl"><button class="play" id="pplay" aria-label="Play or pause">▶</button><div class="bar" id="pbar"><i id="pfill"></i></div><span class="tm" id="ptime">0:00 / 0:00</span></div>
+    </div>
+  </div>
+  <p class="hand hint">press play — this one is permanently attached to memories of you, and I'm sorry ✿</p>
+  <button class="btn albumBtn" id="albumBtn">see our album →</button>
+</div></section>
+
+<section id="pg3" class="page hidden"><div class="sec">
+  <p class="eyebrow">THE MEMORY WALL</p>
+  <h2 class="title sub">flip one over</h2>
+  <p class="hand" style="font-size:26px">every photo has something written on the back ✿</p>
+  <div class="wall" id="wall"></div>
+</div></section>
+
+<section id="pg4" class="page hidden"><div class="sec" style="max-width:640px">
+  <p class="eyebrow">A PROMISE, IN WRITING</p>
+  <h2 class="title sub">the apology certificate</h2>
+  <div class="cert" id="certBox"><div class="cert-in">
+    <div class="seal">OFFICIAL<br>SEAL</div>
+    <p class="k">CERTIFICATE OF APOLOGY</p>
+    <h2>Officially Sorry</h2>
+    <p>This apology is hereby presented to</p>
+    <div class="who" id="cWho"></div>
+    <img class="cph" id="cPh" alt="">
+    <p>is owed my sincerest apology, along with these lifelong promises:</p>
+    <ul class="terms">
+      <li><b>Listen first.</b> Really listen. No defending, no "but".</li>
+      <li><b>Own my mistakes.</b> Say sorry sooner, and mean it every time.</li>
+      <li><b>Think before I speak.</b> Especially when I'm upset.</li>
+      <li><b>Make it up to you.</b> Extra hugs, and the good fries. No exceptions.</li>
+      <li><b>Terms:</b> valid forever, non-refundable, non-transferable.</li>
+    </ul>
+    <div class="sigs"><div><b id="cFrom"></b><small>issued by</small></div><div><b>the cat</b><small>official witness</small></div></div>
+  </div></div>
+  <button class="btn" id="dlCert" style="margin-top:26px">Download certificate ⬇</button>
+</div></section>
+
+<section id="pg5" class="page hidden"><div class="sec" style="max-width:700px">
+  <p class="hand" style="font-size:24px">✿ one last thing ✿</p>
+  <h2 class="title sub">A Note For You</h2>
+  <div class="letter2">
+    <div class="pp pa"><img id="lp0" alt=""></div><div class="pp pb"><img id="lp1" alt=""></div><div class="pp pc"><img id="lp2" alt=""></div>
+    <div class="note" id="note"></div>
+    <img class="cat2" id="catImg2" alt="">
+  </div>
+  <a class="btn hidden" id="returnBtn" href="https://love-page-ccs.pages.dev/" target="_blank" rel="noopener" style="margin-top:36px">Forgive her ♥</a>
+  <div class="genbox hidden" id="genbox">
+    <button class="btn" id="genBtn">Generate QR &amp; link</button>
+    <p>Happy with it? This creates the link you'll send him.</p>
+  </div>
+</div></section>
+
+<nav id="nav" class="hidden">
+  <button class="btn ghost nv" id="back">← Back</button>
+  <div id="dots"><i></i><i></i><i></i><i></i><i></i></div>
+  <button class="btn nv" id="next">Next →</button>
+</nav>
+
+<div id="modal" class="hidden" role="dialog" aria-modal="true">
+  <div class="mbox">
+    <button class="x" id="mClose" aria-label="Close">×</button>
+    <div id="sPay">
+      <h2>Almost there</h2>
+      <p>Got a code? Add it below.</p>
+      <div class="codeRow"><input type="text" id="code" placeholder="Code" autocapitalize="off"><button class="btn ghost" id="applyBtn">Apply</button></div>
+      <p id="codeMsg" style="min-height:20px"></p>
+      <div class="big" id="priceBig"></div>
+      <button class="btn" id="payBtn" style="width:100%"></button>
+    </div>
+    <div id="sBusy" class="hidden"><h2>Uploading photos…</h2><p>Payment received. Keep this tab open.</p></div>
+    <div id="sFail" class="hidden">
+      <h2>Upload failed</h2>
+      <p>Your payment went through, so you won't be charged again.</p>
+      <p id="failMsg" style="margin:10px 0;color:#c2185b"></p>
+      <button class="btn" id="retryBtn">Retry upload</button>
+      <p style="margin-top:12px">Payment ID: <b id="failPay"></b><br>Keep this tab open until it works.</p>
+    </div>
+    <div id="sDone" class="hidden">
+      <h2>It's ready</h2>
+      <div id="qr"></div>
+      <div class="link" id="shareLink"></div>
+      <div class="btns"><button class="btn" id="copyBtn">Copy link</button><button class="btn ghost" id="dlBtn">Save QR</button></div>
+    </div>
   </div>
 </div>
 
-<!-- PAGE 1 -->
-<section class="page active" data-page="0">
-  <div class="eyebrow">page one — the start</div>
-  <h1>I'm <em>sorry.</em></h1>
-  <svg class="cat-heart" viewBox="0 0 160 160" aria-hidden="true">
-    <path d="M80 148 C20 108 6 68 30 42 C48 22 74 26 80 48 C86 26 112 22 130 42 C154 68 140 108 80 148 Z" fill="none" stroke="var(--pri)" stroke-width="5"/>
-    <g transform="translate(80,84)">
-      <ellipse cx="0" cy="8" rx="30" ry="26" fill="#F3C08A"/>
-      <path d="M-26 -6 L-34 -30 L-10 -16 Z" fill="#F3C08A"/>
-      <path d="M26 -6 L34 -30 L10 -16 Z" fill="#F3C08A"/>
-      <path d="M-24 -8 L-29 -22 L-14 -13 Z" fill="#FBD9C4"/>
-      <path d="M24 -8 L29 -22 L14 -13 Z" fill="#FBD9C4"/>
-      <path d="M-14 4 Q-9 10 -4 4" stroke="#5C3A22" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M14 4 Q9 10 4 4" stroke="#5C3A22" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M-3 12 Q0 15 3 12" stroke="#5C3A22" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <circle cx="-16" cy="16" r="3.5" fill="#FFB6C1" opacity=".8"/>
-      <circle cx="16" cy="16" r="3.5" fill="#FFB6C1" opacity=".8"/>
-      <path d="M-8 -28 Q0 -38 8 -28 Q4 -30 0 -26 Q-4 -30 -8 -28 Z" fill="var(--deep)"/>
-      <circle cx="-8" cy="-28" r="4" fill="var(--pri)"/>
-      <circle cx="8" cy="-28" r="4" fill="var(--pri)"/>
-    </g>
-  </svg>
-  <p class="sub">I know a sentence doesn't undo it. But it's where I have to start. There's a little more waiting for you on the next few pages.</p>
-  <button class="cta" onclick="goTo(1)">Let's start →</button>
-</section>
-
-<!-- PAGE 2: PERSONALIZE FORM -->
-<section class="page" data-page="1">
-  <div class="eyebrow">page two — make it yours</div>
-  <h1 style="font-size:clamp(2rem,5vw,3rem);">Write it for them</h1>
-  <p class="sub">Fill this in and the letter on the next page updates to match. Stuck for words? Let it write a first draft for you.</p>
-  <div class="form-card">
-    <svg class="cat-flowers" viewBox="0 0 140 150" aria-hidden="true">
-      <ellipse cx="70" cy="90" rx="42" ry="40" fill="#F3C08A"/>
-      <path d="M32 62 L20 26 L54 48 Z" fill="#F3C08A"/>
-      <path d="M108 62 L120 26 L86 48 Z" fill="#F3C08A"/>
-      <path d="M36 60 L28 36 L52 50 Z" fill="#FBD9C4"/>
-      <path d="M104 60 L112 36 L88 50 Z" fill="#FBD9C4"/>
-      <path d="M50 92 Q58 100 66 92" stroke="#5C3A22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M74 92 Q82 100 90 92" stroke="#5C3A22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M64 102 Q70 106 76 102" stroke="#5C3A22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <circle cx="46" cy="106" r="5" fill="#FFB6C1" opacity=".8"/>
-      <circle cx="94" cy="106" r="5" fill="#FFB6C1" opacity=".8"/>
-      <path d="M56 54 Q70 38 84 54 Q76 50 70 58 Q64 50 56 54 Z" fill="var(--pri)"/>
-      <circle cx="56" cy="54" r="5" fill="var(--deep)"/>
-      <circle cx="84" cy="54" r="5" fill="var(--deep)"/>
-      <g transform="translate(96,108)">
-        <line x1="0" y1="0" x2="0" y2="34" stroke="#4C9A5B" stroke-width="3"/>
-        <ellipse cx="-2" cy="-4" rx="7" ry="11" fill="var(--pri)" transform="rotate(-20 -2 -4)"/>
-        <ellipse cx="6" cy="-4" rx="7" ry="11" fill="var(--deep)" transform="rotate(20 6 -4)"/>
-        <ellipse cx="2" cy="-10" rx="7" ry="11" fill="var(--pri)"/>
-      </g>
-    </svg>
-    <label for="fromName">Your name</label>
-    <input id="fromName" type="text" placeholder="e.g. Rohan" maxlength="30">
-    <label for="toName">Their name</label>
-    <input id="toName" type="text" placeholder="e.g. Ananya" maxlength="30">
-    <label for="customMessage">Your message</label>
-    <textarea id="customMessage" rows="5" placeholder="Write what you want to say... or tap 'write it for me' below."></textarea>
-    <div class="form-actions">
-      <button class="cta ghost" type="button" onclick="aiWrite()" id="aiWriteBtn">✨ Write it for me</button>
-      <button class="cta" type="button" onclick="applyPersonalization()">Save &amp; continue →</button>
-    </div>
-    <div class="ai-status" id="aiStatus"></div>
-  </div>
-</section>
-
-<!-- PAGE 3: LETTER -->
-<section class="page" data-page="2">
-  <div class="eyebrow">page three — the letter</div>
-  <h1 style="font-size:clamp(2rem,5vw,3rem); margin-bottom:28px;">A letter for you</h1>
-  <div class="letter-card">
-    <p class="signoff" id="letterGreeting" style="margin-top:0; margin-bottom:20px; font-size:1.15rem;">Dear you,</p>
-    <div id="letterBody">
-      <p>I keep replaying it, and every time I land in the same place: I was wrong, and you deserved better than that from me.</p>
-      <p>You weren't asking for much — just to be heard, to be considered, to matter in the small decisions as much as the big ones. I lost sight of that, and I let my own frustration get louder than my care for you. That's on me, not on you.</p>
-      <p>I'm not writing this to be forgiven right away. I'm writing it because you deserve to know that I see it clearly now, and I'm not going to make you carry the weight of explaining it to me twice.</p>
-      <p>Thank you for putting up with me even on the days I don't deserve it. I don't take that for granted.</p>
-    </div>
-    <div class="signoff" id="letterSignoff">— with all of it, me</div>
-  </div>
-  <p class="edit-hint">(go back to page two any time to change the names or message)</p>
-  <button class="cta" onclick="goTo(3)" style="margin-top:30px;">Okay, your turn to respond →</button>
-</section>
-
-<!-- PAGE 4: FORGIVENESS METER -->
-<section class="page" data-page="3">
-  <div class="eyebrow">page four — the honest part</div>
-  <h1 style="font-size:clamp(2rem,5vw,3rem);">The Forgiveness-o-meter</h1>
-  <p class="sub">Every apology needs a little science. Tap the heart — it reads you better than I ever could.</p>
-  <div class="meter-wrap">
-    <div class="gauge" id="gauge" onclick="tapForgiveness()">
-      <svg viewBox="0 0 220 220">
-        <circle class="gauge-bg" cx="110" cy="110" r="100"/>
-        <circle class="gauge-fill" id="gaugeFill" cx="110" cy="110" r="100"/>
-      </svg>
-      <div class="gauge-center">
-        <span id="gaugeEmoji">💔</span>
-        <span class="gauge-pct" id="gaugePct">0% forgiven</span>
-      </div>
-    </div>
-    <div class="status-msg angry" id="statusMsg">tap the heart to begin</div>
-  </div>
-  <button class="cta ghost" id="meterContinue" style="margin-top:34px; display:none;" onclick="goTo(4)">Continue to something lighter →</button>
-</section>
-
-<!-- PAGE 5: BALLOONS -->
-<section class="page" data-page="4">
-  <div class="eyebrow">page five — three little things</div>
-  <h1 style="font-size:clamp(2rem,5vw,3rem);">Three reasons I'm grateful for you</h1>
-  <p class="sub">Pop each one. Sound on helps.</p>
-  <div class="balloon-field" id="balloonField"></div>
-  <div class="balloon-progress" id="balloonProgress">0 / 3 popped</div>
-  <button class="cta" id="balloonContinue" style="margin-top:20px; display:none;" onclick="goTo(5)">Last page →</button>
-</section>
-
-<!-- PAGE 6: SEAL -->
-<section class="page" data-page="5">
-  <div class="eyebrow">page six — us</div>
-  <h1 style="font-size:clamp(2.2rem,6vw,3.6rem);">Here's to <em>us</em></h1>
-  <svg class="hug-illustration" viewBox="0 0 200 200">
-    <circle cx="100" cy="100" r="96" fill="var(--sec)"/>
-    <ellipse cx="78" cy="88" rx="26" ry="30" fill="var(--pri)"/>
-    <ellipse cx="122" cy="88" rx="26" ry="30" fill="var(--deep)"/>
-    <circle cx="80" cy="70" r="16" fill="#ffe0c2"/>
-    <circle cx="120" cy="70" r="16" fill="#ffe0c2"/>
-    <path d="M60 120 Q100 160 140 120 Q140 150 100 165 Q60 150 60 120 Z" fill="var(--pri)"/>
-    <text x="100" y="185" text-anchor="middle" font-size="22">💞</text>
-  </svg>
-  <p class="sub gratitude-note">thank you for staying, even when it was hard. i'm grateful for you, i'm sorry, and i'm here 💕</p>
-
-  <div class="pay-box">
-    <h3>Seal it with a promise</h3>
-    <p>A small, symbolic gesture — not a bribe, I promise. Tap below to "checkout" on being better.</p>
-
-    <div class="price-row">
-      <span class="price-original" id="priceOriginal">₹79</span>
-      <span class="price-final" id="priceFinal">₹79</span>
-    </div>
-
-    <div class="coupon-row">
-      <input type="text" id="couponInput" placeholder="Have a coupon code?" autocomplete="off">
-      <button class="cta ghost coupon-btn" type="button" onclick="applyCoupon()">Apply</button>
-    </div>
-    <div class="coupon-status" id="couponStatus"></div>
-
-    <button class="cta" onclick="openRazorpay()" id="sealBtn">Seal it 💫 (₹79)</button>
-    <div class="price">demo checkout — Razorpay test mode</div>
-
-    <div class="confirm-box" id="confirmBox">
-      <div class="confirm-label">confirmation code</div>
-      <div class="confirm-code" id="confirmCode">— — — — — —</div>
-      <button class="cta ghost confirm-copy" type="button" onclick="copyConfirmCode()" id="copyCodeBtn">Copy code</button>
-
-      <div class="confirm-label" style="margin-top:22px;">your unique link — send this</div>
-      <input type="text" id="shareLinkInput" class="share-link-input" readonly onclick="this.select()">
-      <button class="cta ghost confirm-copy" type="button" onclick="copyShareLink()" id="copyLinkBtn">Copy link</button>
-      <div class="share-hint">Opening this link takes them straight to your personalized letter — built from what you wrote on page two.</div>
-    </div>
-  </div>
-</section>
-
-<footer>made with an apology and three balloons</footer>
-
+<audio id="aud" src="song.mp3" preload="auto" loop></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-/* ---------------- theme ---------------- */
-function setTheme(t){
-  document.body.setAttribute('data-theme', t);
-  document.getElementById('btnGirl').classList.toggle('active', t==='girl');
-  document.getElementById('btnBoy').classList.toggle('active', t==='boy');
-}
-
-/* ---------------- page nav ---------------- */
-const pages = document.querySelectorAll('.page');
-const dotsWrap = document.getElementById('dots');
-let current = 0;
-pages.forEach((p,i)=>{
-  const d = document.createElement('button');
-  d.className = 'dot' + (i===0?' active':'');
-  d.onclick = ()=>goTo(i);
-  d.id = 'dot'+i;
-  dotsWrap.appendChild(d);
-});
-function goTo(i){
-  pages[current].classList.remove('active');
-  pages[i].classList.add('active');
-  document.getElementById('dot'+current).classList.remove('active');
-  document.getElementById('dot'+current).classList.add('done');
-  document.getElementById('dot'+i).classList.add('active');
-  document.getElementById('dot'+i).classList.remove('done');
-  current = i;
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-/* ---------------- personalize form ---------------- */
-const defaultLetterHTML = document.getElementById('letterBody').innerHTML;
-const localTemplates = [
-  "I've been thinking about what happened, and I keep coming back to the same thing — I was wrong, and you deserved better. I'm sorry for the moments I hurt you, {TO}. You mean more to me than I show on hard days, and I just want to see you smile again.",
-  "I don't have a perfect way to say this, so I'll say it plainly: I'm sorry, {TO}. I let my own frustration get in the way of how I actually feel about you, and that's on me. Thank you for being patient with me while I figure out how to do better.",
-  "There's no version of this where I skip saying it, so here it is — I'm sorry, {TO}. I hate that I hurt you, and I'm grateful you're still here reading this. I'm going to do better, starting now.",
-  "I keep trying to find the right words and they all sound smaller than what I actually feel, {TO}. I'm sorry. I was wrong, I hurt you, and I don't want to make you carry that. I just want us okay again."
+/* ---------- CONFIG ---------- */
+const RZP_KEY = "rzp_live_SvD983baZpuP2A";
+const SB_URL  = "https://caheredfekvzinpykelv.supabase.co";
+const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhaGVyZWRmZWt2emlucHlrZWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NjQ1ODMsImV4cCI6MjEwNjE0MDU4M30.pslYFUfZMb-MHKuvmxW7b0DRQeT0YCpJ5_Gjhb3VIzU";
+const PRICE = 99; // INR, default
+const CODES = { ayou:0, ayou1:1, love:59 }; // code -> price in INR
+const BUCKET = "photos", TABLE = "surprises";
+const G = "https://media.giphy.com/media/v1.";
+const CAT = G+"Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif";
+const DEF = [
+  G+"Y2lkPTc5MGI3NjExNTV5MDhpejY0eHowZG1oYmk0eW15cG5rODEwb3Q2MnQ3NXQ0ajhucCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QO6gybBh0d4LLTNn1d/giphy.gif",
+  G+"Y2lkPTc5MGI3NjExNTV5MDhpejY0eHowZG1oYmk0eW15cG5rODEwb3Q2MnQ3NXQ0ajhucCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/yUThmGwfT1hrORu84T/giphy.gif",
+  G+"Y2lkPTc5MGI3NjExdDA3Yjk0dGNxMGFqcjkyaGg3ZGR1dWIybTNvdDJmZTl3cHptOTBndCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/VKrjhp2D8pw6zjVsnD/giphy.gif"
 ];
-
-async function aiWrite(){
-  const from = document.getElementById('fromName').value.trim();
-  const to = document.getElementById('toName').value.trim();
-  const status = document.getElementById('aiStatus');
-  const btn = document.getElementById('aiWriteBtn');
-  btn.disabled = true;
-  status.textContent = 'writing a draft...';
-
-  const prompt = `Write a short, sincere apology message (100-130 words) from ${from||'me'} to ${to||'my partner'} for hurting their feelings during an argument. Warm and specific-feeling, not melodramatic, no cliches like "it won't happen again", plain modern language, first person. Return only the message text, no preamble, no quotation marks.`;
-
-  try{
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-    if(!response.ok) throw new Error('bad response');
-    const data = await response.json();
-    const text = (data.content || []).map(c => c.text || '').join('\n').trim();
-    if(!text) throw new Error('empty');
-    document.getElementById('customMessage').value = text;
-    status.textContent = 'here\'s a draft — edit it until it sounds like you';
-  }catch(e){
-    const t = localTemplates[Math.floor(Math.random()*localTemplates.length)].replace(/{TO}/g, to || 'you');
-    document.getElementById('customMessage').value = t;
-    status.textContent = "couldn't reach the AI writer right now — here's a starting point, edit as you like";
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function applyPersonalization(){
-  const from = document.getElementById('fromName').value.trim();
-  const to = document.getElementById('toName').value.trim();
-  const custom = document.getElementById('customMessage').value.trim();
-
-  document.getElementById('letterGreeting').textContent = to ? `My Dearest ${to},` : 'Dear you,';
-
-  const bodyEl = document.getElementById('letterBody');
-  if(custom){
-    bodyEl.innerHTML = '';
-    const p = document.createElement('p');
-    p.style.whiteSpace = 'pre-line';
-    p.textContent = custom;
-    bodyEl.appendChild(p);
-  } else {
-    bodyEl.innerHTML = defaultLetterHTML;
-  }
-
-  document.getElementById('letterSignoff').textContent = from ? `— with all of it, ${from}` : '— with all of it, me';
-  goTo(2);
-}
-
-/* ---------------- floating hearts on hero ---------------- */
-const fhWrap = document.getElementById('floatingHearts');
-for(let i=0;i<14;i++){
-  const s = document.createElement('span');
-  s.className='fh';
-  s.textContent = Math.random()>0.5 ? '💗':'💙';
-  s.style.left = Math.random()*100+'%';
-  s.style.animationDuration = (10+Math.random()*10)+'s';
-  s.style.animationDelay = (Math.random()*10)+'s';
-  s.style.fontSize = (1+Math.random()*1.4)+'rem';
-  fhWrap.appendChild(s);
-}
-
-/* ---------------- site-wide floating cartoon stickers ---------------- */
-const stickerEmojis = ['🐻','🐰','🐱','🦄','🐥','🌸','✨','🎀','🐨','🍓','🐶','🌷'];
-const stickerLayer = document.getElementById('stickerLayer');
-(function scatterStickers(){
-  const count = 16;
-  for(let i=0;i<count;i++){
-    const s = document.createElement('span');
-    s.className = 'sticker';
-    s.textContent = stickerEmojis[Math.floor(Math.random()*stickerEmojis.length)];
-    // bias toward the left/right margins so stickers frame the content instead of covering it
-    const onLeft = Math.random() > 0.5;
-    const edge = Math.random()*14; // 0-14% strip
-    const leftPct = onLeft ? edge : (100 - edge - 6);
-    s.style.left = leftPct + '%';
-    s.style.top = (Math.random()*92) + '%';
-    s.style.fontSize = (1.3 + Math.random()*1.5) + 'rem';
-    s.style.setProperty('--rot', (Math.random()*16 - 8) + 'deg');
-    s.style.animationDuration = (4 + Math.random()*4) + 's';
-    s.style.animationDelay = (Math.random()*4) + 's';
-    stickerLayer.appendChild(s);
-  }
-})();
-
-/* ---------------- audio: synthesized pop ---------------- */
-let audioCtx;
-function playPop(){
-  try{
-    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(700, t);
-    osc.frequency.exponentialRampToValueAtTime(90, t+0.12);
-    gain.gain.setValueAtTime(0.5, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t+0.15);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t); osc.stop(t+0.16);
-  }catch(e){ /* audio not available */ }
-}
-function playChime(){
-  try{
-    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-    [523.25,659.25,783.99].forEach((f,i)=>{
-      const t = audioCtx.currentTime + i*0.09;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type='sine'; osc.frequency.value=f;
-      gain.gain.setValueAtTime(0.001,t);
-      gain.gain.linearRampToValueAtTime(0.25,t+0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001,t+0.5);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t); osc.stop(t+0.55);
-    });
-  }catch(e){}
-}
-
-/* ---------------- confetti ---------------- */
-function confettiBurst(count=60){
-  const colors = getComputedStyle(document.body).getPropertyValue('--pri').trim() ?
-    [getComputedStyle(document.body).getPropertyValue('--pri').trim(),
-     getComputedStyle(document.body).getPropertyValue('--deep').trim(),
-     getComputedStyle(document.body).getPropertyValue('--sec').trim()] : ['#FF7FA6','#C2185B','#FFD3E0'];
-  for(let i=0;i<count;i++){
-    const p = document.createElement('div');
-    p.className='confetti-piece';
-    p.style.left = Math.random()*100+'vw';
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.animationDuration = (2+Math.random()*1.5)+'s';
-    p.style.transform = `rotate(${Math.random()*360}deg)`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(), 3600);
-  }
-}
-
-/* ---------------- forgiveness meter ---------------- */
-const angryLines = [
-  "no no, anger detected 🚫",
-  "still reading angry 😤",
-  "hmm, not quite yet 😐",
-  "getting warmer... 🌤️"
+const MINI_GIFS = [
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXJ2dTFuNDRqcWxmMDV6ejZ6MHg5MTlqcG9uYm0wN2lkd2wwN2s3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QO6gybBh0d4LLTNn1d/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXJ2dTFuNDRqcWxmMDV6ejZ6MHg5MTlqcG9uYm0wN2lkd2wwN2s3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Ey9c4OTwlZWCuVafkZ/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXJ2dTFuNDRqcWxmMDV6ejZ6MHg5MTlqcG9uYm0wN2lkd2wwN2s3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tAnKxPsuWqmuBuHD0Y/giphy.gif"
 ];
-const CIRC = 628;
-let taps = 0;
-const maxTaps = 5;
-function tapForgiveness(){
-  if(taps>=maxTaps) return;
-  taps++;
-  const pct = Math.round((taps/maxTaps)*100);
-  const fill = document.getElementById('gaugeFill');
-  const gauge = document.getElementById('gauge');
-  const msg = document.getElementById('statusMsg');
-  const pctLabel = document.getElementById('gaugePct');
-  const emoji = document.getElementById('gaugeEmoji');
+const DEFAULT_NOTE = "I'm not great at saying this stuff out loud, so I made you a page instead.\n\nI'm sorry. I know I hurt you, and I hate that. You deserve better than how I acted, and I want to show you that, not just say it.\n\nWhatever you decide, I need you to know I mean every word.";
+const P = [1,2,3,4,5,6].map(i=>`p${i}.jpeg`);
+const BACKS = ["i'm sorry i didn't listen the way you deserved.","this smile is the last thing i ever want to dim.","we were so happy here. i want that back.","i should have chosen kinder words.","i'll do better. every single time from now on.","to be continued... if you'll let me ✿"];
 
-  fill.style.strokeDashoffset = CIRC - (CIRC*pct/100);
-  pctLabel.textContent = pct + '% forgiven';
+const $ = i => document.getElementById(i);
+const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const H = {apikey:SB_KEY, Authorization:"Bearer "+SB_KEY};
+const sid0 = new URLSearchParams(location.search).get("id");
+const mode = sid0 ? "view" : "create";
+const first = mode==="view" ? 1 : 0;
+const files = [null,null,null];
+let step = first, D = null, price = PRICE, code = "", pending = null;
 
-  gauge.classList.remove('shake'); void gauge.offsetWidth; gauge.classList.add('shake');
-
-  if(taps < maxTaps){
-    msg.textContent = angryLines[taps-1];
-    msg.className = 'status-msg angry';
-    emoji.textContent = pct < 50 ? '💔' : '❤️‍🩹';
-  } else {
-    msg.textContent = "forgiveness granted 💕 thank you for hearing me out";
-    msg.className = 'status-msg happy';
-    emoji.textContent = '💖';
-    fill.style.stroke = 'var(--deep)';
-    confettiBurst(90);
-    playChime();
-    document.getElementById('meterContinue').style.display = 'inline-block';
-  }
+/* ---------- POPPING HEARTS BACKGROUND ---------- */
+const HB = $("hearts"), HC = ["#ff6fae","#ff9ccb","#c77dff","#e0aaff","#ff5fa2","#b57bee","#f78fc3"];
+const calm = matchMedia("(prefers-reduced-motion:reduce)").matches;
+function spawnHeart(){
+  if(calm || document.hidden || HB.children.length>24) return;
+  const h = document.createElement("span"), d = 3.6+Math.random()*3;
+  h.className = "h"; h.textContent = "♥";
+  h.style.cssText = `left:${Math.random()*96}%;top:${8+Math.random()*80}%;font-size:${14+Math.random()*32}px;color:${HC[Math.floor(Math.random()*HC.length)]};--dx:${Math.random()*70-35}px;--d:${d}s`;
+  HB.appendChild(h); setTimeout(()=>h.remove(), d*1000+120);
 }
+for(let i=0;i<9;i++) setTimeout(spawnHeart, i*180);
+setInterval(spawnHeart, 420);
 
-/* ---------------- balloons ---------------- */
-const balloonNotes = [
-  "You laugh at my bad jokes even when they're not funny. That's a whole personality trait of yours I'm grateful for.",
-  "You tell me the truth even when it's easier not to. I need that.",
-  "You give me room to mess up and still choose to stay. That's not nothing."
-];
-const balloonColors = ['var(--pri)','var(--deep)','var(--sec)'];
-const field = document.getElementById('balloonField');
-let popped = 0;
-balloonNotes.forEach((note, i)=>{
-  const slot = document.createElement('div');
-  slot.className = 'balloon-slot';
-  const b = document.createElement('div');
-  b.className = 'balloon';
-  b.style.background = balloonColors[i];
-  b.onclick = ()=>popBalloon(b, note);
-  slot.appendChild(b);
-  const card = document.createElement('div');
-  card.className = 'note-card';
-  card.textContent = note;
-  card.id = 'note'+i;
-  slot.appendChild(card);
-  b._cardId = 'note'+i;
-  field.appendChild(slot);
-});
-function popBalloon(el, note){
-  if(el.classList.contains('popped')) return;
-  el.classList.add('popped');
-  playPop();
-  confettiBurst(24);
-  document.getElementById(el._cardId).classList.add('show');
-  popped++;
-  document.getElementById('balloonProgress').textContent = popped + ' / 3 popped';
-  if(popped===3){
-    document.getElementById('balloonContinue').style.display = 'inline-block';
-  }
-}
-
-/* ---------------- pricing & coupons ---------------- */
-const BASE_PRICE = 79; // ₹
-const COUPONS = {
-  'FREE100': { pct: 100, label: '100% off — this one\'s on the house 💗' },
-  'SAVE20':  { pct: 20,  label: '20% off applied' },
-  'SAVE30':  { pct: 30,  label: '30% off applied' },
-  'SAVE50':  { pct: 50,  label: '50% off applied' }
-};
-let currentPrice = BASE_PRICE; // in rupees, may be fractional
-let appliedCoupon = null;
-
-function formatRupees(n){
-  // show whole numbers cleanly, otherwise 1 decimal place
-  return (Math.round(n*100)/100).toString();
-}
-
-function updatePriceUI(){
-  const originalEl = document.getElementById('priceOriginal');
-  const finalEl = document.getElementById('priceFinal');
-  const sealBtn = document.getElementById('sealBtn');
-
-  if(currentPrice < BASE_PRICE){
-    originalEl.classList.remove('hide');
-  } else {
-    originalEl.classList.add('hide');
-  }
-  originalEl.textContent = '₹' + BASE_PRICE;
-  finalEl.textContent = currentPrice <= 0 ? 'FREE' : '₹' + formatRupees(currentPrice);
-  sealBtn.textContent = currentPrice <= 0
-    ? 'Seal it 💫 (free)'
-    : 'Seal it 💫 (₹' + formatRupees(currentPrice) + ')';
-}
-
-function applyCoupon(){
-  const input = document.getElementById('couponInput');
-  const status = document.getElementById('couponStatus');
-  const code = input.value.trim().toUpperCase();
-
-  if(!code){
-    status.textContent = 'enter a coupon code first';
-    status.className = 'coupon-status error';
-    return;
-  }
-
-  const coupon = COUPONS[code];
-  if(!coupon){
-    status.textContent = "that code doesn't seem to work — try again?";
-    status.className = 'coupon-status error';
-    return;
-  }
-
-  appliedCoupon = code;
-  currentPrice = Math.max(0, BASE_PRICE * (1 - coupon.pct/100));
-  status.textContent = coupon.label;
-  status.className = 'coupon-status success';
-  updatePriceUI();
-}
-
-updatePriceUI();
-
-/* ---------------- confirmation code ---------------- */
-function generateConfirmationCode(paymentId){
-  // Deterministic-ish, human-shareable code: SORRY-XXXX-XXXX
-  // Built from timestamp + a random segment, base36 for compactness.
-  const ts = Date.now().toString(36).toUpperCase();
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  const tail = (paymentId || '').replace(/[^A-Za-z0-9]/g,'').slice(-4).toUpperCase();
-  const seg2 = (tail || ts.slice(-4)).padEnd(4, 'X');
-  return `SORRY-${ts.slice(-4)}-${seg2}${rand ? '-' + rand : ''}`;
-}
-
-function showConfirmationCode(paymentId){
-  const code = generateConfirmationCode(paymentId);
-  document.getElementById('confirmCode').textContent = code;
-  document.getElementById('shareLinkInput').value = buildShareLink();
-  document.getElementById('confirmBox').classList.add('show');
-  return code;
-}
-
-function copyConfirmCode(){
-  const code = document.getElementById('confirmCode').textContent;
-  const btn = document.getElementById('copyCodeBtn');
-  navigator.clipboard.writeText(code).then(()=>{
-    btn.textContent = 'Copied ✓';
-    setTimeout(()=>{ btn.textContent = 'Copy code'; }, 1800);
-  }).catch(()=>{
-    btn.textContent = "Couldn't copy — select manually";
-    setTimeout(()=>{ btn.textContent = 'Copy code'; }, 2200);
-  });
-}
-
-/* ---------------- unique shareable link ---------------- */
-function encodeShareData(){
-  const from = document.getElementById('fromName').value.trim();
-  const to = document.getElementById('toName').value.trim();
-  const custom = document.getElementById('customMessage').value.trim();
-  const payload = { f: from, t: to, m: custom, ts: Date.now() };
-  try{
-    return btoa(encodeURIComponent(JSON.stringify(payload)));
-  }catch(e){
-    return '';
-  }
-}
-
-function decodeShareData(hash){
-  try{
-    const json = decodeURIComponent(atob(hash));
-    return JSON.parse(json);
-  }catch(e){
-    return null;
-  }
-}
-
-function buildShareLink(){
-  const data = encodeShareData();
-  const base = window.location.origin + window.location.pathname;
-  return base + '#s=' + data;
-}
-
-function copyShareLink(){
-  const input = document.getElementById('shareLinkInput');
-  const btn = document.getElementById('copyLinkBtn');
-  input.select();
-  navigator.clipboard.writeText(input.value).then(()=>{
-    btn.textContent = 'Copied ✓';
-    setTimeout(()=>{ btn.textContent = 'Copy link'; }, 1800);
-  }).catch(()=>{
-    btn.textContent = "Couldn't copy — select manually";
-    setTimeout(()=>{ btn.textContent = 'Copy link'; }, 2200);
-  });
-}
-
-/* If this page was opened via a shared link (#s=...), load the sender's
-   personalization automatically and jump straight to the letter page. */
-(function loadFromShareLink(){
-  const hash = window.location.hash;
-  if(!hash || hash.indexOf('#s=') !== 0) return;
-  const data = decodeShareData(hash.slice(3));
-  if(!data) return;
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    if(data.f) document.getElementById('fromName').value = data.f;
-    if(data.t) document.getElementById('toName').value = data.t;
-    if(data.m) document.getElementById('customMessage').value = data.m;
-    applyPersonalization();
-    goTo(2); // land directly on the letter page for the recipient
-  });
-})();
-
-/* ---------------- razorpay ---------------- */
-function openRazorpay(){
-  if(currentPrice <= 0){
-    confettiBurst(120);
-    playChime();
-    showConfirmationCode('FREE-' + (appliedCoupon || 'COUPON'));
-    return;
-  }
-
-  const amountPaise = Math.round(currentPrice * 100);
-  const options = {
-    key: "rzp_live_SvD983baZpuP2A", // Razorpay's public sandbox test key — replace with your own Key ID from the Razorpay Dashboard
-    amount: amountPaise,
-    currency: "INR",
-    name: "I'm Sorry",
-    description: "Sealed with a promise to do better" + (appliedCoupon ? " (" + appliedCoupon + ")" : ""),
-    handler: function(response){
-      confettiBurst(120);
-      playChime();
-      showConfirmationCode(response.razorpay_payment_id);
-    },
-    theme: { color: getComputedStyle(document.body).getPropertyValue('--deep').trim() || "#C2185B" }
+/* ---------- NAVIGATION (smooth cross-fade) ---------- */
+let swapT = null;
+function show(n, push=true){
+  step = n;
+  const next = $("pg"+n), cur = document.querySelector(".page:not(.hidden)");
+  const swap = () => {
+    for(let i=0;i<6;i++){ const p=$("pg"+i); p.classList.toggle("hidden", i!==n); p.classList.remove("leaving"); }
+    if(n!==1) $("pg1").classList.remove("open");
+    next.classList.add("entering");
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>next.classList.remove("entering")));
   };
-  try{
-    const rzp = new Razorpay(options);
-    rzp.open();
-  }catch(e){
-    alert("Razorpay checkout couldn't load — check your connection, or swap in your own Key ID from the Razorpay Dashboard.");
+  clearTimeout(swapT);
+  if(cur && cur!==next && !calm){ cur.classList.add("leaving"); swapT = setTimeout(swap, 280); } else swap();
+  $("nav").classList.toggle("hidden", n<1);
+  $("back").classList.toggle("show", n>first);
+  $("next").classList.toggle("show", n>=1 && n<5);
+  $("next").textContent = n===1 ? "Open ✉" : "Next →";
+  document.querySelectorAll("#dots i").forEach((d,i)=>d.classList.toggle("on", i===n-1));
+  $("genbox").classList.toggle("hidden", mode!=="create");
+  if(push) history.pushState({n},"",location.search+"#s"+n);
+}
+const go = d => { const n=step+d; if(n>=first && n<=5 && (n>=1||mode==="create")) show(n); };
+window.addEventListener("popstate", e => { const n = e.state?.n ?? first; show(D||n===0 ? n : first, false); });
+$("back").onclick = () => history.length>1 && history.state && history.state.n>first ? history.back() : go(-1);
+const aud = $("aud"), playSong = () => aud.play().catch(()=>{});
+let opening = false;
+function openEnvelope(){
+  if(opening) return; opening = true; playSong();
+  $("pg1").classList.add("open");
+  setTimeout(()=>{ opening = false; go(1); }, calm ? 0 : 520);
+}
+$("next").onclick = () => { if(step===1) openEnvelope(); else go(1); };
+$("pg1").onclick = openEnvelope;
+document.addEventListener("keydown", e => {
+  if($("modal").classList.contains("hidden") && step>=1 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    if(e.key==="ArrowRight") step===1 ? openEnvelope() : go(1); if(e.key==="ArrowLeft") go(-1);
   }
+});
+
+/* ---------- RENDER ---------- */
+function render(d){
+  D = d;
+  const ph = (d.photos||[]).concat(DEF).slice(0,3);
+  $("catImg").src = CAT; $("catImg2").src = CAT;
+  $("vTitle").textContent = `To ${d.receiver}`;
+  $("vRibbon").textContent = `from ${d.sender} ✿`;
+  $("vMsg").textContent = "I've been replaying it in my head, and I know I messed up. So instead of a rushed text, I built you a tiny corner of the internet to say it properly. Stay a while, there's a bit to read.";
+  $("minis").innerHTML = MINI_GIFS.map(u=>`<img src="${esc(u)}" alt="">`).join("");
+  $("wall").innerHTML = P.map((u,i)=>`<button class="flip" aria-label="Flip photo ${i+1}"><span class="pin"></span><div><figure><img src="${esc(u)}" alt=""></figure><div class="back">${BACKS[i]}</div></div></button>`).join("");
+  document.querySelectorAll(".flip").forEach(b=>b.onclick=e=>{e.stopPropagation();b.classList.toggle("on");});
+  $("pArt").src = MINI_GIFS[0];
+  $("cWho").textContent = d.receiver; $("cFrom").textContent = d.sender; $("cPh").src = ph[0];
+  [0,1,2].forEach(i=>$("lp"+i).src = ph[i]);
+  $("note").innerHTML = `Hey ${esc(d.receiver)},\n\n${esc(d.message || DEFAULT_NOTE)}\n\nstill yours,\n<span class="sig">${esc(d.sender)}</span>`;
+}
+
+if(mode==="view") $("returnBtn").classList.remove("hidden"); // shared link only, never in the creator preview
+
+/* ---------- MUSIC PLAYER ---------- */
+const fmt = t => isFinite(t) ? Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0") : "0:00";
+const syncBtn = () => { $("pplay").textContent = aud.paused ? "▶" : "❚❚"; };
+$("pplay").onclick = () => aud.paused ? playSong() : aud.pause();
+aud.onplay = aud.onpause = syncBtn;
+aud.ontimeupdate = aud.onloadedmetadata = () => {
+  $("pfill").style.width = (aud.duration ? aud.currentTime/aud.duration*100 : 0)+"%";
+  $("ptime").textContent = fmt(aud.currentTime)+" / "+fmt(aud.duration);
+};
+$("pbar").onclick = e => { if(!aud.duration) return; const r=e.currentTarget.getBoundingClientRect(); aud.currentTime=(e.clientX-r.left)/r.width*aud.duration; };
+$("albumBtn").onclick = () => go(1);
+$("dlCert").onclick = async () => {
+  const b = $("dlCert"); b.disabled = true; b.textContent = "Making it…";
+  try{
+    const c = await html2canvas($("certBox"),{scale:2,useCORS:true,backgroundColor:null,onclone:doc=>{doc.getElementById("certBox").style.transform="none";}});
+    const a = document.createElement("a"); a.href = c.toDataURL("image/png"); a.download = "apology-certificate.png"; a.click();
+  }catch(e){ console.error(e); alert("Couldn't save it. A screenshot works too."); }
+  b.disabled = false; b.textContent = "Download certificate ⬇";
+};
+syncBtn();
+
+/* ---------- CREATE: form + preview ---------- */
+if(mode==="create"){
+  document.querySelectorAll(".pic").forEach((el,i)=>{
+    el.querySelector("input").addEventListener("change",e=>{
+      const f = e.target.files[0]; if(!f) return;
+      files[i]=f; el.style.backgroundImage=`url(${URL.createObjectURL(f)})`; el.classList.add("has");
+    });
+  });
+  $("previewBtn").onclick = () => {
+    const sender=$("sender").value.trim(), receiver=$("receiver").value.trim(), message=$("message").value.trim();
+    if(!sender||!receiver) return $("err").textContent="Add both names.";
+    if(files.some(f=>!f)) return $("err").textContent="Add all 3 photos.";
+    $("err").textContent="";
+    if(pending && !pending.done) pending.urls=[]; // retry re-uploads the latest photos
+    render({sender,receiver,message,photos:files.map(f=>URL.createObjectURL(f))});
+    show(1);
+  };
+  history.replaceState({n:0},"",location.pathname);
+  show(0,false);
+}else{
+  history.replaceState({n:1},"",location.search+"#s1");
+  $("pg0").classList.add("hidden");
+  (async()=>{
+    let d=null;
+    try{ const r=await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(sid0)}&select=*`,{headers:H}); d=(await r.json())[0]; }catch(e){}
+    if(!d){ $("pg1").innerHTML='<div class="wrap"><h2>This link doesn\'t look right</h2><p style="margin-top:10px">Ask the sender to share it again.</p></div>'; $("pg1").classList.remove("hidden"); return; }
+    render(d); show(1,false);
+  })();
+}
+
+/* ---------- PAYMENT ---------- */
+const states = ["sPay","sBusy","sFail","sDone"];
+const setState = s => states.forEach(x=>$(x).classList.toggle("hidden",x!==s));
+function refreshPrice(){
+  $("priceBig").textContent = price===0 ? "Free" : "₹"+price;
+  $("payBtn").textContent = price===0 ? "Generate for free" : "Pay ₹"+price+" & generate";
+}
+$("genBtn").onclick = () => {
+  $("modal").classList.remove("hidden");
+  setState(pending ? (pending.done ? "sDone" : "sFail") : "sPay");
+  refreshPrice();
+};
+$("mClose").onclick = () => { if(!$("sBusy").classList.contains("hidden")) return; $("modal").classList.add("hidden"); };
+$("applyBtn").onclick = () => {
+  const c = $("code").value.trim().toLowerCase();
+  if(c in CODES){ price=CODES[c]; code=c; $("codeMsg").textContent="Code applied ✓"; $("codeMsg").style.color="var(--teal-d)"; }
+  else { price=PRICE; code=""; $("codeMsg").textContent="That code isn't valid."; $("codeMsg").style.color="#c2185b"; }
+  refreshPrice();
+};
+$("payBtn").onclick = () => {
+  if(price===0) return finalize("FREE-"+code);
+  const rz = new Razorpay({
+    key:RZP_KEY, amount:price*100, currency:"INR",
+    name:"I'm Sorry", description:"An apology for "+D.receiver,
+    theme:{color:"#b56ad8"},
+    handler: r => finalize(r.razorpay_payment_id)
+  });
+  rz.on("payment.failed",()=>{ $("codeMsg").textContent="Payment failed. Try again."; $("codeMsg").style.color="#c2185b"; });
+  rz.open();
+};
+$("retryBtn").onclick = () => finalize(pending.payId);
+
+async function finalize(payId){
+  if(!pending) pending = {sid:crypto.randomUUID(), payId, urls:[], done:false};
+  try{ localStorage.setItem("bd_last_payment", payId); }catch(e){}
+  setState("sBusy");
+  try{
+    for(let i=0;i<3;i++){
+      if(pending.urls[i]) continue;
+      const blob = await shrink(files[i]);
+      const path = `${pending.sid}/${i}.jpg`;
+      const r = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${path}`,{method:"POST",headers:{...H,"Content-Type":"image/jpeg"},body:blob});
+      if(!r.ok){
+        const t = await r.text();
+        if(!/Duplicate|already exists/i.test(t)){ console.error("upload",r.status,t); throw new Error(`Photo ${i+1} failed (${r.status}): ${t.slice(0,160)}`); }
+      }
+      pending.urls[i] = `${SB_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+    }
+    const r = await fetch(`${SB_URL}/rest/v1/${TABLE}`,{method:"POST",headers:{...H,"Content-Type":"application/json",Prefer:"return=minimal"},
+      body:JSON.stringify({id:pending.sid,sender:D.sender,receiver:D.receiver,message:D.message,photos:pending.urls,payment_id:pending.payId})});
+    if(!r.ok && r.status!==409){ const t = await r.text(); console.error("insert",r.status,t); throw new Error(`Couldn't save page (${r.status}): ${t.slice(0,160)}`); }
+    pending.done = true;
+    const link = `${location.origin}${location.pathname}?id=${pending.sid}`;
+    $("shareLink").textContent = link;
+    $("qr").innerHTML = ""; new QRCode($("qr"),{text:link,width:200,height:200});
+    $("copyBtn").onclick = () => { navigator.clipboard.writeText(link); $("copyBtn").textContent="Copied"; };
+    $("dlBtn").onclick = () => { const c=$("qr").querySelector("canvas"); const a=document.createElement("a"); a.href=c.toDataURL("image/png"); a.download="im-sorry-qr.png"; a.click(); };
+    setState("sDone");
+  }catch(e){
+    $("failMsg").textContent = e.message; $("failPay").textContent = pending.payId;
+    setState("sFail");
+  }
+}
+function shrink(file,max=1100){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>b?res(b):rej(new Error("Bad image")),"image/jpeg",.85);};
+    img.onerror=()=>rej(new Error("Couldn't read an image."));
+    img.src=URL.createObjectURL(file);
+  });
 }
 </script>
 </body>
